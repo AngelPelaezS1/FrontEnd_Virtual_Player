@@ -1,0 +1,16 @@
+/* Fondo completo con imagen de estadio */
+.stadium-bg {
+  background: url('../fondo-estadio.jpg') no-repeat center center; /* Imagen centrada */
+  background-size: cover; /* La imagen ocupa toda la pantalla */
+  width: 100vw; /* Ancho completo de la ventana */
+  height: 100vh; /* Alto completo de la ventana */
+
+  display: flex; /* Usamos Flexbox para centrar el panel */
+  justify-content: center; /* Centrado horizontal */
+  align-items: center; /* Centrado vertical */
+
+  position: fixed; /* Para que ocupe toda la pantalla */
+  top: 0;
+  left: 0;
+}
+
