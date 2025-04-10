@@ -1,0 +1,70 @@
+/* Fondo completo con imagen de estadio */
+.stadium-bg {
+  background: url('../fondo-estadio.jpg') no-repeat center center; /* Imagen centrada */
+  background-size: cover; /* La imagen ocupa toda la pantalla */
+  width: 100vw; /* Ancho completo de la ventana */
+  height: 100vh; /* Alto completo de la ventana */
+
+  display: flex; /* Usamos Flexbox para centrar el panel */
+  justify-content: center; /* Centrado horizontal */
+  align-items: center; /* Centrado vertical */
+
+  position: fixed; /* Para que ocupe toda la pantalla */
+  top: 0;
+  left: 0;
+}
+
+/* Panel de login con estilo neón */
+.login-panel {
+  background: rgba(0, 0, 0, 0.5); /* Fondo semitransparente negro */
+  border: 2px solid #00ffff; /* Borde azul neón */
+  box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff66; /* Efecto de brillo */
+  padding: 40px; /* Espaciado interior */
+  border-radius: 15px; /* Bordes redondeados */
+  color: white; /* Texto blanco */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Campos de entrada de texto */
+.login-panel input {
+  width: 240px;
+  margin: 12px 0;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.6); /* Fondo del input */
+  color: white;
+  border: 1px solid #00ffff; /* Borde neón */
+  border-radius: 8px;
+  outline: none;
+  box-shadow: 0 0 10px #00ffff44;
+}
+
+/* Botón de login */
+.login-panel button {
+  margin-top: 15px;
+  padding: 12px 25px;
+  background: #00ffff;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00ffffaa;
+  transition: background 0.3s ease;
+}
+
+/* Cambio de color al pasar el ratón */
+.login-panel button:hover {
+  background: #00cccc;
+}
+
+/* Texto inferior tipo "¿No tienes cuenta?" */
+.forgot {
+  font-size: 12px;
+  margin-top: 12px;
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+}

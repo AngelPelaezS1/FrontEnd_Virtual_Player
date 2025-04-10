@@ -1,0 +1,14 @@
+/* Quitamos márgenes por defecto y aseguramos buen comportamiento de los layouts */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estos tres elementos deben ocupar toda la pantalla */
+body, html, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', sans-serif;
+}
