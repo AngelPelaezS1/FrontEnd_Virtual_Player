@@ -1,26 +1,29 @@
-// Importamos los dos componentes principales: Login y Registro
+import { useState } from 'react';
 import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
+import MainScreen from './components/MainScreen';
 
-// Importamos el hook useState para controlar si estamos en login o registro
-import { useState } from 'react';
-
-// Componente principal de la aplicación
 export default function App() {
-  // Estado que define si mostramos la pantalla de login (true) o de registro (false)
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado para saber si el usuario está logueado
+  const [isRegistering, setIsRegistering] = useState(false); // Estado para saber si estamos en la pantalla de registro
+
+  // Función para manejar el cambio entre login y registro
+  const toggleScreen = () => setIsRegistering(!isRegistering);
+
+  // Función para manejar el cierre de sesión
+  const handleLogout = () => {
+    setIsLoggedIn(false); // Cambiamos el estado para mostrar el login
+  };
 
   return (
-    <>
-      {isLogin ? (
-        // Si el estado es true, mostramos el LoginScreen
-        // Le pasamos una función como prop para cambiar a la pantalla de registro
-        <LoginScreen onSwitch={() => setIsLogin(false)} />
+    <div>
+      {isLoggedIn ? (
+        <MainScreen onLogout={handleLogout} />
+      ) : isRegistering ? (
+        <RegisterScreen onSwitch={toggleScreen} />
       ) : (
-        // Si es false, mostramos RegisterScreen
-        // Le pasamos una función como prop para volver al login
-        <RegisterScreen onSwitch={() => setIsLogin(true)} />
+        <LoginScreen onLogin={() => setIsLoggedIn(true)} onSwitch={toggleScreen} />
       )}
-    </>
+    </div>
   );
 }

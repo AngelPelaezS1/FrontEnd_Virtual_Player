@@ -1,9 +1,7 @@
 // Importamos los estilos del login
 import './LoginScreen.css';
 
-// Componente de pantalla de registro, recibe onSwitch como prop para volver al login
 export default function RegisterScreen({ onSwitch }) {
-  // Función que se ejecuta al enviar el formulario
   const handleRegister = async (e) => {
     e.preventDefault(); // Evitamos que se recargue la página
 
@@ -19,25 +17,18 @@ export default function RegisterScreen({ onSwitch }) {
 
     if (res.ok) {
       alert("Registration successful! You can now log in."); // Éxito
+      onSwitch(); // Volvemos a la pantalla de login
     } else {
       alert("Registration failed"); // Error
     }
   };
 
-  // Devolvemos el formulario de registro
   return (
     <div className="stadium-bg">
       <form className="login-panel" onSubmit={handleRegister}>
-        {/* Campo de nombre */}
         <input name="name" type="text" placeholder="Name" />
-
-        {/* Campo de contraseña */}
         <input name="password" type="password" placeholder="Password" />
-
-        {/* Botón para enviar el formulario */}
         <button type="submit">REGISTER</button>
-
-        {/* Texto clicable para volver al login */}
         <p className="forgot" onClick={onSwitch}>
           Already have an account? Log in
         </p>

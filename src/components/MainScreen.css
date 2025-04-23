@@ -4,13 +4,44 @@
   background-size: cover; /* La imagen ocupa toda la pantalla */
   width: 100vw; /* Ancho completo de la ventana */
   height: 100vh; /* Alto completo de la ventana */
-
-  display: flex; /* Usamos Flexbox para centrar el panel */
-  justify-content: center; /* Centrado horizontal */
-  align-items: center; /* Centrado vertical */
-
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: fixed; /* Para que ocupe toda la pantalla */
   top: 0;
   left: 0;
+  flex-direction: column;
 }
 
+/* Contenedor de la cabecera */
+.header {
+  display: flex;
+  justify-content: space-between; /* Espacio entre nombre y botón */
+  align-items: center;
+  width: 97%;
+  padding: 20px;
+  position: absolute; /* Para que siempre esté visible */
+  top: 0;
+  left: 0;
+  color: white;
+}
+
+.player-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.logout-button {
+  padding: 10px 20px;
+  background-color: #ff4d4d; /* Rojo para destacar el botón */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #ff1a1a; /* Un tono más oscuro al pasar el mouse */
+}
