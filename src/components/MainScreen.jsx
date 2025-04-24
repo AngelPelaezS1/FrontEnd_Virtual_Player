@@ -117,30 +117,35 @@ export default function MainScreen({ onLogout }) {
           <button onClick={() => setShowCreatePlayerForm(false)}>Cancel</button> {/* Botón para cancelar la creación */}
         </div>
       )}
-
-      {/* Contenedor de jugadores */}
-      <div className="players-list">
-        {loading ? (
-          <p>Loading players...</p> // Este es el mensaje mientras se están cargando los jugadores
-        ) : (
-          players.length > 0 ? (
-            <div className="players-container">
-              {players.map((player, index) => (
-                <div className="player-card" key={index}>
-                  <h4>{player.name}</h4>
-                  <p><strong>Nationality:</strong> {player.nationality}</p>
-                  <p><strong>Team:</strong> {player.team}</p>
-                  <p><strong>Energy:</strong> {player.energy}</p>
-                  <p><strong>Happiness:</strong> {player.happiness}</p>
-                  <p><strong>State:</strong> {player.state}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No players found.</p> // Mensaje cuando no hay jugadores
-          )
-        )}
-      </div>
+     {/* Contenedor de jugadores */}
+     {!showCreatePlayerForm && (
+     <>
+     console.log("Jugadores cargados:", players);
+       <div className="players-list">
+         {loading ? (
+           <p>Loading players...</p> // Este es el mensaje mientras se están cargando los jugadores
+         ) : (
+           players.length > 0 ? (
+             <div className="players-container">
+               {players.map((player, index) => (
+                 <div className="player-card" key={index}>
+                   <h4>{player.name}</h4>
+                   <p><strong>Nationality:</strong> {player.nationality}</p>
+                   <p><strong>Team:</strong> {player.team}</p>
+                   <p><strong>Energy:</strong> {player.energy}</p>
+                   <p><strong>Happiness:</strong> {player.happiness}</p>
+                   <p><strong>State:</strong> {player.state}</p>
+                   <p><strong>Owner:</strong> {player.userName}</p>
+                 </div>
+               ))}
+             </div>
+           ) : (
+             <p>No players found.</p> // Mensaje cuando no hay jugadores
+           )
+         )}
+       </div>
+       </>
+     )}
     </div>
   );
 }

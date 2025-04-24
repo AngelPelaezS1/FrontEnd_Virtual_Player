@@ -77,14 +77,18 @@
 
 /* Formulario de creación de jugador */
 .create-player-form {
+  position: absolute; /* Lo sacamos del flujo normal */
+  top: 50%; /* Centro vertical */
+  left: 50%; /* Centro horizontal */
+  transform: translate(-50%, -50%); /* Ajuste para el centro exacto */
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 30px;
+  border-radius: 12px;
   color: white;
+  z-index: 10; /* Para que esté encima */
 }
 
 .create-player-form input {
