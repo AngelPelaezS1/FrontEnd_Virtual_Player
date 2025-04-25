@@ -94,7 +94,7 @@ export default function MainScreen({ onLogout }) {
       <div className="header"> {/* Cabecera con el nombre del jugador y los botones */}
         <span className="player-name">{playerName}</span> {/* Nombre del jugador */}
         <button className="logout-button" onClick={handleLogout}>Cerrar sesión</button> {/* Botón para cerrar sesión */}
-        <button className="create-player-button" onClick={() => setShowCreatePlayerForm(true)}>Create Player</button> {/* Botón para mostrar el formulario de crear jugador */}
+        <button className="create-player-button" onClick={() => setShowCreatePlayerForm(true)}>Create Player</button> {/* Botón para mostrar el formulario de creación de jugador */}
       </div>
 
       {/* Formulario de creación de jugador */}
@@ -117,35 +117,38 @@ export default function MainScreen({ onLogout }) {
           <button onClick={() => setShowCreatePlayerForm(false)}>Cancel</button> {/* Botón para cancelar la creación */}
         </div>
       )}
-     {/* Contenedor de jugadores */}
-     {!showCreatePlayerForm && (
-     <>
-     console.log("Jugadores cargados:", players);
-       <div className="players-list">
-         {loading ? (
-           <p>Loading players...</p> // Este es el mensaje mientras se están cargando los jugadores
-         ) : (
-           players.length > 0 ? (
-             <div className="players-container">
-               {players.map((player, index) => (
-                 <div className="player-card" key={index}>
-                   <h4>{player.name}</h4>
-                   <p><strong>Nationality:</strong> {player.nationality}</p>
-                   <p><strong>Team:</strong> {player.team}</p>
-                   <p><strong>Energy:</strong> {player.energy}</p>
-                   <p><strong>Happiness:</strong> {player.happiness}</p>
-                   <p><strong>State:</strong> {player.state}</p>
-                   <p><strong>Owner:</strong> {player.userName}</p>
-                 </div>
-               ))}
-             </div>
-           ) : (
-             <p>No players found.</p> // Mensaje cuando no hay jugadores
-           )
-         )}
-       </div>
-       </>
-     )}
+
+      {/* Contenedor de jugadores */}
+      {!showCreatePlayerForm && (
+        <>
+          <div className="players-list">
+            {loading ? (
+              <p>Loading players...</p> // Este es el mensaje mientras se están cargando los jugadores
+            ) : (
+              players.length > 0 ? (
+                <div className="players-container">
+                  {players.map((player, index) => (
+                    <div className="player-card" key={index}>
+                      <h4>{player.name}</h4>
+                      <p><strong>Nationality:</strong> {player.nationality}</p>
+                      <p><strong>Team:</strong> {player.team}</p>
+                      <p><strong>Energy:</strong> {player.energy}</p>
+                      <p><strong>Happiness:</strong> {player.happiness}</p>
+                      <p><strong>State:</strong> {player.state || "N/A"}</p>
+                      <p><strong>Mood:</strong> {player.mood || "N/A"}</p>
+                      <p><strong>Owner:</strong> {player.userName}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-players-panel">
+                  <p>No tienes mascotas.</p> {/* Mensaje cuando no hay jugadores */}
+                </div>
+              )
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
