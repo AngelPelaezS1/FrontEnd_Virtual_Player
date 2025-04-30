@@ -8,84 +8,104 @@ export default function MainScreen({ onLogout }) {
   const [showCreatePlayerForm, setShowCreatePlayerForm] = useState(false); // Estado para controlar si se muestra el formulario de creación de jugador
   const [players, setPlayers] = useState([]); // Estado para almacenar la lista de jugadores
   const [loading, setLoading] = useState(false); // Estado para controlar si los jugadores están cargando
+  const [selectedPlayer, setSelectedPlayer] = useState(null); // Almacena el jugador clicado
+  const [playerDetails, setPlayerDetails] = useState(null); // Detalles del jugador (para la tabla)
 
   useEffect(() => {
-    // Intentamos obtener el token del localStorage
     const token = localStorage.getItem("jwt");
     if (token) {
-      const base64Payload = token.split('.')[1]; // Obtenemos el payload del token (parte intermedia)
-      const decodedPayload = JSON.parse(atob(base64Payload)); // Decodificamos el payload del token
-      setPlayerName(decodedPayload.sub); // Extraemos el 'sub' (nombre del jugador) del payload y lo almacenamos en el estado
+      const base64Payload = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(base64Payload));
+      setPlayerName(decodedPayload.sub);
     }
-
-    // Llamamos a la función para obtener los jugadores cuando el componente se monta
     fetchPlayers();
-  }, []); // Se ejecuta una sola vez cuando el componente se monta
+  }, []);
 
   const handleLogout = () => {
-    // Función para manejar el cierre de sesión
-    localStorage.removeItem("jwt"); // Eliminamos el token del localStorage
-    onLogout(); // Llamamos a la función onLogout para cambiar el estado en App.js
+    localStorage.removeItem("jwt");
+    onLogout();
   };
 
   const handleCreatePlayer = async () => {
-    // Función para manejar la creación de un nuevo jugador
-    const upperNationality = nationality.toUpperCase(); // Convertimos la nacionalidad a mayúsculas para garantizar consistencia
-    const token = localStorage.getItem("jwt"); // Obtenemos el token del localStorage
+    const upperNationality = nationality.toUpperCase();
+    const token = localStorage.getItem("jwt");
 
     try {
-      // Hacemos la petición POST para crear un nuevo jugador
       const response = await fetch('http://localhost:8080/player/create', {
-        method: 'POST', // Método POST para crear un nuevo jugador
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json', // Indicamos que estamos enviando JSON
-         'Authorization': `Bearer ${token}`, // Pasamos el token en el encabezado de autorización
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: newPlayerName, // Nombre del nuevo jugador
-          nationality: upperNationality, // Nacionalidad convertida a mayúsculas
+          name: newPlayerName,
+          nationality: upperNationality,
         }),
       });
 
       if (response.ok) {
-        alert('Player created successfully!'); // Mostramos un mensaje de éxito si el jugador fue creado correctamente
-        setNewPlayerName(''); // Limpiamos el campo del nombre
-        setNationality(''); // Limpiamos el campo de la nacionalidad
-        setShowCreatePlayerForm(false); // Cerramos el formulario de creación de jugador
+        alert('Player created successfully!');
+        setNewPlayerName('');
+        setNationality('');
+        setShowCreatePlayerForm(false);
+        fetchPlayers(); // Recargamos los jugadores
       } else {
-        alert('Failed to create player'); // Mostramos un mensaje de error si no se pudo crear el jugador
+        alert('Failed to create player');
       }
     } catch (error) {
-      console.error('Error creating player:', error); // Registramos cualquier error en la consola
-      alert('Error creating player'); // Mostramos un mensaje de error si ocurre una excepción
+      console.error('Error creating player:', error);
+      alert('Error creating player');
     }
   };
 
   const fetchPlayers = async () => {
-    // Función para obtener los jugadores
-    setLoading(true); // Establecemos el estado de carga a 'true'
-    const token = localStorage.getItem("jwt"); // Obtenemos el token del localStorage
+    setLoading(true);
+    const token = localStorage.getItem("jwt");
 
     try {
-      // Hacemos una petición GET para obtener los jugadores
       const response = await fetch('http://localhost:8080/player/showAll', {
-        method: 'GET', // Método GET para obtener la lista de jugadores
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`, // Pasamos el token en el encabezado de autorización
+          'Authorization': `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        const playersData = await response.json(); // Parseamos la respuesta JSON
-        setPlayers(playersData); // Guardamos los jugadores obtenidos en el estado
+        const playersData = await response.json();
+        setPlayers(playersData);
       } else {
-        alert('Failed to fetch players'); // Mostramos un mensaje de error si la petición falla
+        alert('Failed to fetch players');
       }
     } catch (error) {
-      console.error('Error fetching players:', error); // Registramos el error en la consola
-      alert('Error fetching players'); // Mostramos un mensaje de error si ocurre una excepción
+      console.error('Error fetching players:', error);
+      alert('Error fetching players');
     } finally {
-      setLoading(false); // Establecemos el estado de carga a 'false' una vez que la operación termine
+      setLoading(false);
+    }
+  };
+
+  // Función para manejar el clic sobre una tarjeta de jugador
+  const handlePlayerClick = async (playerId) => {
+    const token = localStorage.getItem("jwt");
+
+    try {
+      const response = await fetch(`http://localhost:8080/player/show/${playerId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPlayerDetails(data); // Guardamos los detalles para mostrarlos
+        setSelectedPlayer(playerId); // Marcamos el jugador seleccionado
+      } else {
+        alert('No se pudo cargar el jugador');
+      }
+    } catch (error) {
+      console.error('Error cargando jugador:', error);
+      alert('Error cargando jugador');
     }
   };
 
@@ -94,53 +114,80 @@ export default function MainScreen({ onLogout }) {
       <div className="header"> {/* Cabecera con el nombre del jugador y los botones */}
         <span className="player-name">{playerName}</span> {/* Nombre del jugador */}
         <button className="logout-button" onClick={handleLogout}>Log out</button> {/* Botón para cerrar sesión */}
-        <button className="create-player-button" onClick={() => setShowCreatePlayerForm(true)}>Create Player</button> {/* Botón para mostrar el formulario de creación de jugador */}
+        <button className="create-player-button" onClick={() => setShowCreatePlayerForm(true)}>Create Player</button> {/* Botón para crear jugador */}
       </div>
 
-      {/* Formulario de creación de jugador */}
       {showCreatePlayerForm && (
         <div className="create-player-form">
-          <h3>Create a New Player</h3> {/* Título del formulario */}
+          <h3>Create a New Player</h3>
           <input
             type="text"
-            placeholder="Player Name" // Campo para ingresar el nombre del jugador
+            placeholder="Player Name"
             value={newPlayerName}
-            onChange={(e) => setNewPlayerName(e.target.value)} // Actualiza el nombre del jugador en el estado
+            onChange={(e) => setNewPlayerName(e.target.value)}
           />
           <input
             type="text"
-            placeholder="Nationality" // Campo para ingresar la nacionalidad del jugador
+            placeholder="Nationality"
             value={nationality}
-            onChange={(e) => setNationality(e.target.value)} // Actualiza la nacionalidad en el estado
+            onChange={(e) => setNationality(e.target.value)}
           />
-          <button onClick={handleCreatePlayer}>Create Player</button> {/* Botón para crear el jugador */}
-          <button onClick={() => setShowCreatePlayerForm(false)}>Cancel</button> {/* Botón para cancelar la creación */}
+          <button onClick={handleCreatePlayer}>Create Player</button>
+          <button onClick={() => setShowCreatePlayerForm(false)}>Cancel</button>
         </div>
       )}
 
-      {/* Contenedor de jugadores */}
       {!showCreatePlayerForm && (
         <>
-          <div className="players-list">
-            {loading ? (
-              <p>Loading players...</p> // Este es el mensaje mientras se están cargando los jugadores
+          {/* Contenido principal: mostramos tabla si hay jugador clicado, si no la lista */}
+          <div className="main-content">
+            {playerDetails ? (
+              <div className="player-details-table aligned-right"> {/* Tabla alineada a la derecha */}
+                <h3>Detalles del jugador</h3>
+                <table>
+                  <tbody>
+                    <tr><td><strong>Nombre:</strong></td><td>{playerDetails.name}</td></tr>
+                    <tr><td><strong>Nacionalidad:</strong></td><td>{playerDetails.nationality}</td></tr>
+                    <tr><td><strong>Equipo:</strong></td><td>{playerDetails.team}</td></tr>
+                    <tr><td><strong>Energía:</strong></td><td>{playerDetails.energy}</td></tr>
+                    <tr><td><strong>Felicidad:</strong></td><td>{playerDetails.happiness}</td></tr>
+                    <tr><td><strong>Estado:</strong></td><td>{playerDetails.state}</td></tr>
+                    <tr><td><strong>Ánimo:</strong></td><td>{playerDetails.mood}</td></tr>
+                    <tr><td><strong>Propietario:</strong></td><td>{playerDetails.userName}</td></tr>
+                  </tbody>
+                </table>
+                <button className="back-button" onClick={() => setPlayerDetails(null)}>Volver</button> {/* Botón para volver a la lista */}
+              </div>
             ) : (
-              players.length > 0 ? (
-                <div className="players-container">
-                  {players.map((player, index) => (
-                    <div className="player-card" key={index}>
-                      <h4>{player.name}</h4>
-                      <p><strong>Nationality:</strong> {player.nationality}</p>
-                      <p><strong>Team:</strong> {player.team}</p>
-                      <p><strong>Owner:</strong> {player.userName}</p>
-                    </div>
-                  ))}
+              <>
+                {/* Contenedor de jugadores */}
+                <div className="players-list">
+                  {loading ? (
+                    <p>Loading players...</p> // Este es el mensaje mientras se están cargando los jugadores
+                  ) : (
+                    players.length > 0 ? (
+                      <div className="players-container">
+                        {players.map((player, index) => (
+                          <div
+                            className={`player-card ${selectedPlayer === player.id ? 'selected' : ''}`}
+                            key={index}
+                            onClick={() => handlePlayerClick(player.id)} // Clic para mostrar detalles
+                          >
+                            <h4>{player.name}</h4>
+                            <p><strong>Nationality:</strong> {player.nationality}</p>
+                            <p><strong>Team:</strong> {player.team}</p>
+                            <p><strong>Owner:</strong> {player.userName}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="no-players-panel">
+                        <p>No tienes mascotas.</p> {/* Mensaje cuando no hay jugadores */}
+                      </div>
+                    )
+                  )}
                 </div>
-              ) : (
-                <div className="no-players-panel">
-                  <p>No tienes mascotas.</p> {/* Mensaje cuando no hay jugadores */}
-                </div>
-              )
+              </>
             )}
           </div>
         </>
