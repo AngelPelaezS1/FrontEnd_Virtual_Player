@@ -98,6 +98,7 @@ export default function MainScreen({ onLogout }) {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Detalles del jugador:", data);
         setPlayerDetails(data); // Guardamos los detalles para mostrarlos
         setSelectedPlayer(playerId); // Marcamos el jugador seleccionado
       } else {
@@ -109,6 +110,37 @@ export default function MainScreen({ onLogout }) {
     }
   };
 
+  const handleDeletePlayer = async () => {
+    const token = localStorage.getItem("jwt");
+
+    try {
+      const response = await fetch(`http://localhost:8080/player/delete/${selectedPlayer}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert('Player deleted successfully!');
+        setPlayerDetails(null); // Volvemos a la vista de lista
+        fetchPlayers(); // Actualizamos la lista
+      } else {
+        alert('Failed to delete player');
+      }
+    } catch (error) {
+      console.error('Error deleting player:', error);
+      alert('Error deleting player');
+    }
+  };
+
+    const getColor = (value) => {
+     if (value <= 30) return 'red';
+     if (value < 70) return 'dodgerblue'; // azul fuerte y bonito
+       return 'limegreen';
+};
+
+
 return (
   <div className="stadium-bg"> {/* Fondo de la pantalla con imagen del estadio */}
     <div className="header"> {/* Cabecera con el nombre del jugador y los botones */}
@@ -116,7 +148,6 @@ return (
       <button className="logout-button" onClick={handleLogout}>Log out</button> {/* Botón para cerrar sesión */}
       <button className="create-player-button" onClick={() => setShowCreatePlayerForm(true)}>Create Player</button> {/* Botón para crear jugador */}
     </div>
-
     {showCreatePlayerForm && (
       <div className="create-player-form">
         <h3>Create a New Player</h3>
@@ -150,17 +181,43 @@ return (
               <h3>Detalles del jugador</h3>
               <table>
                 <tbody>
-                  <tr><td><strong>Nombre:</strong></td><td>{playerDetails.name}</td></tr>
-                  <tr><td><strong>Nacionalidad:</strong></td><td>{playerDetails.nationality}</td></tr>
-                  <tr><td><strong>Equipo:</strong></td><td>{playerDetails.team}</td></tr>
-                  <tr><td><strong>Energía:</strong></td><td>{playerDetails.energy}</td></tr>
-                  <tr><td><strong>Felicidad:</strong></td><td>{playerDetails.happiness}</td></tr>
-                  <tr><td><strong>Estado:</strong></td><td>{playerDetails.state}</td></tr>
-                  <tr><td><strong>Ánimo:</strong></td><td>{playerDetails.mood}</td></tr>
-                  <tr><td><strong>Propietario:</strong></td><td>{playerDetails.userName}</td></tr>
+                  <tr><td><strong>Name:</strong></td><td>{playerDetails.name}</td></tr>
+                  <tr><td><strong>Nationality:</strong></td><td>{playerDetails.nationality}</td></tr>
+                  <tr><td><strong>Team:</strong></td><td>{playerDetails.team}</td></tr>
+                  <tr>
+                    <td><strong>Energy:</strong></td>
+                    <td>
+                      <div className="bar-container">
+                        <div
+                          className="bar energy-bar"
+                          style={{
+                            width: `${playerDetails.energy}%`,
+                            backgroundColor: getColor(playerDetails.energy)
+                          }}
+                        ></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Happiness:</strong></td>
+                    <td>
+                      <div className="bar-container">
+                        <div
+                          className="bar happiness-bar"
+                          style={{
+                            width: `${playerDetails.happiness}%`,
+                            backgroundColor: getColor(playerDetails.happiness)
+                          }}
+                        ></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr><td><strong>Mood:</strong></td><td>{playerDetails.mood}</td></tr>
+                  <tr><td><strong>Owner:</strong></td><td>{playerDetails.userName}</td></tr>
                 </tbody>
               </table>
-              <button className="back-button" onClick={() => setPlayerDetails(null)}>Volver</button> {/* Botón para volver a la lista */}
+              <button className="back-button" onClick={() => setPlayerDetails(null)}>Back</button> {/* Botón para volver a la lista */}
+              <button className="delete-button" onClick={handleDeletePlayer}>Delete</button>
             </div>
           ) : (
             <div className="players-list"> {/* Contenedor de jugadores */}

@@ -56,7 +56,7 @@
 
 /* Efecto hover para el botón de cerrar sesión */
 .logout-button:hover {
-  background-color: #ff1a1a;
+  background-color: #b30000; /* Rojo más intenso al pasar el ratón */
 }
 
 /* Estilo del botón de crear jugador */
@@ -256,3 +256,46 @@
 .custom-select option[value=""] {
   color: #aaa;
 }
+
+.delete-button {
+  margin-top: 10px; /* Añade un margen superior de 10 píxeles para separarlo del elemento de arriba */
+  padding: 10px 40px; /* Espaciado interno: 10px arriba/abajo y 20px izquierda/derecha para agrandar el botón */
+  font-size: 16px; /* Tamaño del texto dentro del botón */
+  background-color: #ff4d4d; /* Color de fondo rojo claro (color principal del botón) */
+  color: white; /* Color del texto: blanco */
+  border: none; /* Elimina el borde por defecto */
+  border-radius: 8px; /* Bordes redondeados de 8 píxeles para un estilo más moderno */
+  cursor: pointer; /* Cambia el cursor a la mano cuando pasas el ratón sobre el botón */
+  position: absolute; /* Posiciona el botón de forma absoluta dentro del contenedor más cercano con posición relativa */
+  bottom: 40px; /* Lo coloca 20 píxeles desde la parte inferior del contenedor */
+  left: 20px; /* Lo coloca 20 píxeles desde el borde izquierdo del contenedor */
+  transition: background-color 0.3s ease; /* Suaviza el cambio de color cuando se pasa el ratón por encima (hover), en 0.3 segundos */
+}
+
+.delete-button:hover {
+  background-color: #cc0000; /* Cuando el ratón pasa por encima, cambia a un rojo más oscuro para indicar interacción */
+}
+
+.bar-container {
+  width: 100%;
+  height: 16px;
+  background-color: #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.bar {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.3s ease;
+}
+
+.energy-bar {
+  background-color: #00bfff; /* azul para energy */
+}
+
+.happiness-bar {
+  background-color: #32cd32; /* verde lima para happiness */
+}
+
