@@ -1,15 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import './MainScreen.css';
 
 export default function MainScreen({ onLogout }) {
-  const [playerName, setPlayerName] = useState(''); // Estado para almacenar el nombre del jugador
-  const [newPlayerName, setNewPlayerName] = useState(''); // Estado para almacenar el nombre del nuevo jugador
-  const [nationality, setNationality] = useState(''); // Estado para almacenar la nacionalidad del nuevo jugador
-  const [showCreatePlayerForm, setShowCreatePlayerForm] = useState(false); // Estado para controlar si se muestra el formulario de creación de jugador
-  const [players, setPlayers] = useState([]); // Estado para almacenar la lista de jugadores
-  const [loading, setLoading] = useState(false); // Estado para controlar si los jugadores están cargando
-  const [selectedPlayer, setSelectedPlayer] = useState(null); // Almacena el jugador clicado
-  const [playerDetails, setPlayerDetails] = useState(null); // Detalles del jugador (para la tabla)
+  const [playerName, setPlayerName] = useState('');
+  const [newPlayerName, setNewPlayerName] = useState('');
+  const [nationality, setNationality] = useState('');
+  const [showCreatePlayerForm, setShowCreatePlayerForm] = useState(false);
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [playerDetails, setPlayerDetails] = useState(null);
+
+  useEffect(() => {
+    if (selectedPlayer) {
+      const interval = setInterval(() => {
+        fetchSelectedPlayerData(selectedPlayer);
+      }, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedPlayer]);
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
@@ -20,43 +29,6 @@ export default function MainScreen({ onLogout }) {
     }
     fetchPlayers();
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("jwt");
-    onLogout();
-  };
-
-  const handleCreatePlayer = async () => {
-    const upperNationality = nationality.toUpperCase();
-    const token = localStorage.getItem("jwt");
-
-    try {
-      const response = await fetch('http://localhost:8080/player/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: newPlayerName,
-          nationality: upperNationality,
-        }),
-      });
-
-      if (response.ok) {
-        alert('Player created successfully!');
-        setNewPlayerName('');
-        setNationality('');
-        setShowCreatePlayerForm(false);
-        fetchPlayers(); // Recargamos los jugadores
-      } else {
-        alert('Failed to create player');
-      }
-    } catch (error) {
-      console.error('Error creating player:', error);
-      alert('Error creating player');
-    }
-  };
 
   const fetchPlayers = async () => {
     setLoading(true);
@@ -84,8 +56,7 @@ export default function MainScreen({ onLogout }) {
     }
   };
 
-  // Función para manejar el clic sobre una tarjeta de jugador
-  const handlePlayerClick = async (playerId) => {
+  const handlePlayerClick = useCallback(async (playerId) => {
     const token = localStorage.getItem("jwt");
 
     try {
@@ -98,15 +69,66 @@ export default function MainScreen({ onLogout }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Detalles del jugador:", data);
-        setPlayerDetails(data); // Guardamos los detalles para mostrarlos
-        setSelectedPlayer(playerId); // Marcamos el jugador seleccionado
+        setPlayerDetails(data);
+        setSelectedPlayer(playerId);
       } else {
         alert('No se pudo cargar el jugador');
       }
     } catch (error) {
       console.error('Error cargando jugador:', error);
       alert('Error cargando jugador');
+    }
+  }, []);
+
+  const fetchSelectedPlayerData = async (playerId) => {
+    const token = localStorage.getItem("jwt");
+
+    try {
+      const response = await fetch(`http://localhost:8080/player/refresh/${playerId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPlayerDetails(data);
+      }
+    } catch (error) {
+      console.error('Error actualizando jugador:', error);
+    }
+  };
+
+  const handleCreatePlayer = async () => {
+    const upperNationality = nationality.toUpperCase();
+    const token = localStorage.getItem("jwt");
+
+    try {
+      const response = await fetch('http://localhost:8080/player/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: newPlayerName,
+          nationality: upperNationality,
+        }),
+      });
+
+      if (response.ok) {
+        alert('Player created successfully!');
+        setNewPlayerName('');
+        setNationality('');
+        setShowCreatePlayerForm(false);
+        fetchPlayers();
+      } else {
+        alert('Failed to create player');
+      }
+    } catch (error) {
+      console.error('Error creating player:', error);
+      alert('Error creating player');
     }
   };
 
@@ -123,8 +145,9 @@ export default function MainScreen({ onLogout }) {
 
       if (response.ok) {
         alert('Player deleted successfully!');
-        setPlayerDetails(null); // Volvemos a la vista de lista
-        fetchPlayers(); // Actualizamos la lista
+        setPlayerDetails(null);
+        setSelectedPlayer(null);
+        fetchPlayers();
       } else {
         alert('Failed to delete player');
       }
@@ -134,50 +157,53 @@ export default function MainScreen({ onLogout }) {
     }
   };
 
-    const getColor = (value) => {
-     if (value <= 30) return 'red';
-     if (value < 70) return 'dodgerblue'; // azul fuerte y bonito
-       return 'limegreen';
-};
+  const handleLogout = () => {
+    localStorage.removeItem("jwt");
+    onLogout();
+  };
 
+  const getColor = (value) => {
+    if (value <= 30) return 'red';
+    if (value < 70) return 'dodgerblue';
+    return 'limegreen';
+  };
 
-return (
-  <div className="stadium-bg"> {/* Fondo de la pantalla con imagen del estadio */}
-    <div className="header"> {/* Cabecera con el nombre del jugador y los botones */}
-      <span className="player-name">{playerName}</span> {/* Nombre del jugador */}
-      <button className="logout-button" onClick={handleLogout}>Log out</button> {/* Botón para cerrar sesión */}
-      <button className="create-player-button" onClick={() => setShowCreatePlayerForm(true)}>Create Player</button> {/* Botón para crear jugador */}
-    </div>
-    {showCreatePlayerForm && (
-      <div className="create-player-form">
-        <h3>Create a New Player</h3>
-        <input
-          type="text"
-          placeholder="Player Name"
-          value={newPlayerName}
-          onChange={(e) => setNewPlayerName(e.target.value)}
-        />
-        <select
-          value={nationality}
-          onChange={(e) => setNationality(e.target.value)}
-          className="custom-select"
-        >
-          <option value="">Select nationality</option>
-          <option value="ARGENTINA">Argentina</option>
-          <option value="BRASIL">Brasil</option>
-          <option value="ESPAÑA">España</option>
-        </select>
-        <button onClick={handleCreatePlayer}>Create Player</button>
-        <button onClick={() => setShowCreatePlayerForm(false)}>Cancel</button>
+  return (
+    <div className="stadium-bg">
+      <div className="header">
+        <span className="player-name">{playerName}</span>
+        <button className="logout-button" onClick={handleLogout}>Log out</button>
+        <button className="create-player-button" onClick={() => setShowCreatePlayerForm(true)}>Create Player</button>
       </div>
-    )}
 
-    {!showCreatePlayerForm && (
-      <>
-        {/* Contenido principal: mostramos tabla si hay jugador clicado, si no la lista */}
-        <div className="main-content"> {/* Contenedor principal siempre empujado a la derecha */}
+      {showCreatePlayerForm && (
+        <div className="create-player-form">
+          <h3>Create a New Player</h3>
+          <input
+            type="text"
+            placeholder="Player Name"
+            value={newPlayerName}
+            onChange={(e) => setNewPlayerName(e.target.value)}
+          />
+          <select
+            value={nationality}
+            onChange={(e) => setNationality(e.target.value)}
+            className="custom-select"
+          >
+            <option value="">Select nationality</option>
+            <option value="ARGENTINA">Argentina</option>
+            <option value="BRASIL">Brasil</option>
+            <option value="ESPAÑA">España</option>
+          </select>
+          <button onClick={handleCreatePlayer}>Create Player</button>
+          <button onClick={() => setShowCreatePlayerForm(false)}>Cancel</button>
+        </div>
+      )}
+
+      {!showCreatePlayerForm && (
+        <div className="main-content">
           {playerDetails ? (
-            <div className="player-details-table aligned-right"> {/* Tabla alineada a la derecha */}
+            <div className="player-details-table aligned-right">
               <h3>Detalles del jugador</h3>
               <table>
                 <tbody>
@@ -216,13 +242,21 @@ return (
                   <tr><td><strong>Owner:</strong></td><td>{playerDetails.userName}</td></tr>
                 </tbody>
               </table>
-              <button className="back-button" onClick={() => setPlayerDetails(null)}>Back</button> {/* Botón para volver a la lista */}
+              <button
+                className="back-button"
+                onClick={() => {
+                  setPlayerDetails(null);
+                  setSelectedPlayer(null); // Detiene el intervalo
+                }}
+              >
+                Back
+              </button>
               <button className="delete-button" onClick={handleDeletePlayer}>Delete</button>
             </div>
           ) : (
-            <div className="players-list"> {/* Contenedor de jugadores */}
+            <div className="players-list">
               {loading ? (
-                <p>Loading players...</p> // Este es el mensaje mientras se están cargando los jugadores
+                <p>Loading players...</p>
               ) : (
                 players.length > 0 ? (
                   <div className="players-container">
@@ -230,7 +264,7 @@ return (
                       <div
                         className={`player-card ${selectedPlayer === player.id ? 'selected' : ''}`}
                         key={index}
-                        onClick={() => handlePlayerClick(player.id)} // Clic para mostrar detalles
+                        onClick={() => handlePlayerClick(player.id)}
                       >
                         <h4>{player.name}</h4>
                         <p><strong>Nationality:</strong> {player.nationality}</p>
@@ -241,15 +275,14 @@ return (
                   </div>
                 ) : (
                   <div className="no-players-panel">
-                    <p>No tienes mascotas.</p> {/* Mensaje cuando no hay jugadores */}
+                    <p>No tienes mascotas.</p>
                   </div>
                 )
               )}
             </div>
           )}
         </div>
-      </>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 }
