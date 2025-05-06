@@ -185,6 +185,29 @@ export default function MainScreen({ onLogout }) {
   const playerImageKey = playerDetails ? `${playerDetails.nationality}_${playerDetails.team}` : null;
   const playerImageUrl = playerImageKey ? imageMap[playerImageKey] : null;
 
+  // Función para poner al jugador a dormir (endpoint sleeping)
+  const handleSleepPlayer = async () => {
+    const token = localStorage.getItem("jwt");
+
+    try {
+      const response = await fetch(`http://localhost:8080/player/sleeping/${selectedPlayer}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Volvemos a cargar los datos del jugador para ver los cambios en energía, felicidad y estado de ánimo
+        fetchSelectedPlayerData(selectedPlayer);
+      } else {
+        alert('No se pudo dormir al jugador');
+      }
+    } catch (error) {
+      console.error('Error al dormir al jugador:', error);
+      alert('Error al dormir al jugador');
+    }
+  };
 
   return (
     <div className="stadium-bg">
@@ -222,6 +245,11 @@ export default function MainScreen({ onLogout }) {
         <div className="main-content">
           {playerDetails ? (
             <>
+              {/* Botón Sleep a la izquierda */}
+              <div className="left-panel">
+                <button className="sleep-button" onClick={handleSleepPlayer}>Sleep</button>
+              </div>
+
               {/* Imagen del jugador centrada */}
               {playerImageUrl && (
                 <div className="player-character-centered">
@@ -229,7 +257,7 @@ export default function MainScreen({ onLogout }) {
                 </div>
               )}
 
-              {/* Detalles del jugador como antes, sin imagen */}
+              {/* Detalles del jugador a la derecha */}
               <div className="player-details-table aligned-right">
                 <h3>Detalles del jugador</h3>
                 <table>
@@ -269,6 +297,7 @@ export default function MainScreen({ onLogout }) {
                     <tr><td><strong>Owner:</strong></td><td>{playerDetails.userName}</td></tr>
                   </tbody>
                 </table>
+
                 <button
                   className="back-button"
                   onClick={() => {
@@ -313,4 +342,5 @@ export default function MainScreen({ onLogout }) {
       )}
     </div>
   );
+
 }
