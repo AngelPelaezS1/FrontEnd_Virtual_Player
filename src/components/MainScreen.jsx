@@ -168,6 +168,24 @@ export default function MainScreen({ onLogout }) {
     return 'limegreen';
   };
 
+  // Mapeamos cada combinación de nacionalidad + equipo con su imagen
+  const imageMap = {
+    "ESPAÑA_BARCELONA": "/images/ESPAÑA_barça.png",
+    "ESPAÑA_FLAMENGO": "/images/ESPAÑA_flamengo.png",
+    "ESPAÑA_CORINTHIANS": "/images/ESPAÑA_corinthians.png",
+    "BRASIL_BARCELONA": "/images/BRASIL_barça.png",
+    "BRASIL_FLAMENGO": "/images/BRASIL_flamengo.png",
+    "BRASIL_CORINTHIANS": "/images/BRASIL_corinthians.png",
+    "ARGENTINA_BARCELONA": "/images/ARGENTINA_barça.png",
+    "ARGENTINA_FLAMENGO": "/images/ARGENTINA_flamengo.png",
+    "ARGENTINA_CORINTHIANS": "/images/ARGENTINA_corinthians.png",
+  };
+
+  // Solo construimos la clave si hay un jugador seleccionado
+  const playerImageKey = playerDetails ? `${playerDetails.nationality}_${playerDetails.team}` : null;
+  const playerImageUrl = playerImageKey ? imageMap[playerImageKey] : null;
+
+
   return (
     <div className="stadium-bg">
       <div className="header">
@@ -203,56 +221,66 @@ export default function MainScreen({ onLogout }) {
       {!showCreatePlayerForm && (
         <div className="main-content">
           {playerDetails ? (
-            <div className="player-details-table aligned-right">
-              <h3>Detalles del jugador</h3>
-              <table>
-                <tbody>
-                  <tr><td><strong>Name:</strong></td><td>{playerDetails.name}</td></tr>
-                  <tr><td><strong>Nationality:</strong></td><td>{playerDetails.nationality}</td></tr>
-                  <tr><td><strong>Team:</strong></td><td>{playerDetails.team}</td></tr>
-                  <tr>
-                    <td><strong>Energy:</strong></td>
-                    <td>
-                      <div className="bar-container">
-                        <div
-                          className="bar energy-bar"
-                          style={{
-                            width: `${playerDetails.energy}%`,
-                            backgroundColor: getColor(playerDetails.energy)
-                          }}
-                        ></div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><strong>Happiness:</strong></td>
-                    <td>
-                      <div className="bar-container">
-                        <div
-                          className="bar happiness-bar"
-                          style={{
-                            width: `${playerDetails.happiness}%`,
-                            backgroundColor: getColor(playerDetails.happiness)
-                          }}
-                        ></div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr><td><strong>Mood:</strong></td><td>{playerDetails.mood}</td></tr>
-                  <tr><td><strong>Owner:</strong></td><td>{playerDetails.userName}</td></tr>
-                </tbody>
-              </table>
-              <button
-                className="back-button"
-                onClick={() => {
-                  setPlayerDetails(null);
-                  setSelectedPlayer(null); // Detiene el intervalo
-                }}
-              >
-                Back
-              </button>
-              <button className="delete-button" onClick={handleDeletePlayer}>Delete</button>
-            </div>
+            <>
+              {/* Imagen del jugador centrada */}
+              {playerImageUrl && (
+                <div className="player-character-centered">
+                  <img src={playerImageUrl} alt="Player" className="player-character-image" />
+                </div>
+              )}
+
+              {/* Detalles del jugador como antes, sin imagen */}
+              <div className="player-details-table aligned-right">
+                <h3>Detalles del jugador</h3>
+                <table>
+                  <tbody>
+                    <tr><td><strong>Name:</strong></td><td>{playerDetails.name}</td></tr>
+                    <tr><td><strong>Nationality:</strong></td><td>{playerDetails.nationality}</td></tr>
+                    <tr><td><strong>Team:</strong></td><td>{playerDetails.team}</td></tr>
+                    <tr>
+                      <td><strong>Energy:</strong></td>
+                      <td>
+                        <div className="bar-container">
+                          <div
+                            className="bar energy-bar"
+                            style={{
+                              width: `${playerDetails.energy}%`,
+                              backgroundColor: getColor(playerDetails.energy)
+                            }}
+                          ></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Happiness:</strong></td>
+                      <td>
+                        <div className="bar-container">
+                          <div
+                            className="bar happiness-bar"
+                            style={{
+                              width: `${playerDetails.happiness}%`,
+                              backgroundColor: getColor(playerDetails.happiness)
+                            }}
+                          ></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr><td><strong>Mood:</strong></td><td>{playerDetails.mood}</td></tr>
+                    <tr><td><strong>Owner:</strong></td><td>{playerDetails.userName}</td></tr>
+                  </tbody>
+                </table>
+                <button
+                  className="back-button"
+                  onClick={() => {
+                    setPlayerDetails(null);
+                    setSelectedPlayer(null);
+                  }}
+                >
+                  Back
+                </button>
+                <button className="delete-button" onClick={handleDeletePlayer}>Delete</button>
+              </div>
+            </>
           ) : (
             <div className="players-list">
               {loading ? (
