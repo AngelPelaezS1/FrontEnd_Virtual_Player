@@ -10,6 +10,7 @@ export default function MainScreen({ onLogout }) {
   const [loading, setLoading] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [playerDetails, setPlayerDetails] = useState(null);
+  const [showTeamSelector, setShowTeamSelector] = useState(false);
 
   useEffect(() => {
     if (selectedPlayer) {
@@ -196,9 +197,8 @@ export default function MainScreen({ onLogout }) {
           'Authorization': `Bearer ${token}`,
         },
       });
-
       if (response.ok) {
-        // Volvemos a cargar los datos del jugador para ver los cambios en energía, felicidad y estado de ánimo
+
         fetchSelectedPlayerData(selectedPlayer);
       } else {
         alert('No se pudo dormir al jugador');
@@ -208,6 +208,53 @@ export default function MainScreen({ onLogout }) {
       alert('Error al dormir al jugador');
     }
   };
+
+  const handleTrainPlayer = async () => {
+    const token = localStorage.getItem("jwt");
+
+    try {
+      const response = await fetch(`http://localhost:8080/player/training/${selectedPlayer}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        fetchSelectedPlayerData(selectedPlayer); // Recarga datos actualizados
+      } else {
+        alert('No se pudo entrenar al jugador');
+      }
+    } catch (error) {
+      console.error('Error al entrenar al jugador:', error);
+      alert('Error al entrenar al jugador');
+    }
+  };
+
+    const handleUpdateTeam = async (newTeamValue) => {
+      const token = localStorage.getItem("jwt");
+
+      try {
+        const response = await fetch(`http://localhost:8080/player/team/${selectedPlayer}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ newTeam: newTeamValue }),
+        });
+
+        if (response.ok) {
+          fetchSelectedPlayerData(selectedPlayer);
+          setShowTeamSelector(false);
+        } else {
+          alert("Failed to update team");
+        }
+      } catch (error) {
+        console.error("Error updating team:", error);
+        alert("Error updating team");
+      }
+    };
 
   return (
     <div className="stadium-bg">
@@ -245,11 +292,6 @@ export default function MainScreen({ onLogout }) {
         <div className="main-content">
           {playerDetails ? (
             <>
-              {/* Botón Sleep a la izquierda */}
-              <div className="left-panel">
-                <button className="sleep-button" onClick={handleSleepPlayer}>Sleep</button>
-              </div>
-
               {/* Imagen del jugador centrada */}
               {playerImageUrl && (
                 <div className="player-character-centered">
@@ -297,7 +339,6 @@ export default function MainScreen({ onLogout }) {
                     <tr><td><strong>Owner:</strong></td><td>{playerDetails.userName}</td></tr>
                   </tbody>
                 </table>
-
                 <button
                   className="back-button"
                   onClick={() => {
@@ -307,8 +348,20 @@ export default function MainScreen({ onLogout }) {
                 >
                   Back
                 </button>
+                <button className="train-button" onClick={handleTrainPlayer}>Train</button>
+                <button className="sleep-button" onClick={handleSleepPlayer}>Sleep</button>
                 <button className="delete-button" onClick={handleDeletePlayer}>Delete</button>
               </div>
+
+              {/* Botón de equipo y menú desplegable FUERA de la tabla */}
+              <button className="team-button" onClick={() => setShowTeamSelector(!showTeamSelector)}>Change Team</button>
+              {showTeamSelector && (
+                <div className="team-selector-dropdown">
+                  <button onClick={() => handleUpdateTeam("BARCELONA")}>Barça</button>
+                  <button onClick={() => handleUpdateTeam("CORINTHIANS")}>Corinthians</button>
+                  <button onClick={() => handleUpdateTeam("FLAMENGO")}>Flamengo</button>
+                </div>
+              )}
             </>
           ) : (
             <div className="players-list">
@@ -331,8 +384,10 @@ export default function MainScreen({ onLogout }) {
                     ))}
                   </div>
                 ) : (
+                 <div className="center-wrapper">
                   <div className="no-players-panel">
-                    <p>No tienes mascotas.</p>
+                    <p>You have no players.</p>
+                  </div>
                   </div>
                 )
               )}
@@ -342,5 +397,4 @@ export default function MainScreen({ onLogout }) {
       )}
     </div>
   );
-
 }
