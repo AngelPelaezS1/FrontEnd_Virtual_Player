@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import './MainScreen.css';
 
-export default function MainScreen({ onLogout }) {
+  export default function MainScreen({ onLogout }) {
   const [playerName, setPlayerName] = useState('');
   const [newPlayerName, setNewPlayerName] = useState('');
   const [nationality, setNationality] = useState('');
@@ -11,6 +11,7 @@ export default function MainScreen({ onLogout }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [playerDetails, setPlayerDetails] = useState(null);
   const [showTeamSelector, setShowTeamSelector] = useState(false);
+  const [customAlert, setCustomAlert] = useState({ message: '', type: '', visible: false });
 
   useEffect(() => {
     if (selectedPlayer) {
@@ -47,11 +48,11 @@ export default function MainScreen({ onLogout }) {
         const playersData = await response.json();
         setPlayers(playersData);
       } else {
-        alert('Failed to fetch players');
+        showAlert('Failed to fetch players', 'error');
       }
     } catch (error) {
       console.error('Error fetching players:', error);
-      alert('Error fetching players');
+      showAlert('Failed to fetch players', 'error');
     } finally {
       setLoading(false);
     }
@@ -73,11 +74,11 @@ export default function MainScreen({ onLogout }) {
         setPlayerDetails(data);
         setSelectedPlayer(playerId);
       } else {
-        alert('No se pudo cargar el jugador');
+        showAlert('Failed to load player', 'error');
       }
     } catch (error) {
       console.error('Error cargando jugador:', error);
-      alert('Error cargando jugador');
+      showAlert('Error loading player', 'error');
     }
   }, []);
 
@@ -119,17 +120,17 @@ export default function MainScreen({ onLogout }) {
       });
 
       if (response.ok) {
-        alert('Player created successfully!');
+        showAlert('Player created successfully!', 'success');
         setNewPlayerName('');
         setNationality('');
         setShowCreatePlayerForm(false);
         fetchPlayers();
       } else {
-        alert('Failed to create player');
+        showAlert('Failed to create player', 'error');
       }
     } catch (error) {
       console.error('Error creating player:', error);
-      alert('Error creating player');
+      showAlert('Error creating player', 'error');
     }
   };
 
@@ -145,16 +146,16 @@ export default function MainScreen({ onLogout }) {
       });
 
       if (response.ok) {
-        alert('Player deleted successfully!');
+        showAlert('Player deleted successfully!', 'success');
         setPlayerDetails(null);
         setSelectedPlayer(null);
         fetchPlayers();
       } else {
-        alert('Failed to delete player');
+        showAlert('Failed to delete player', 'error');
       }
     } catch (error) {
       console.error('Error deleting player:', error);
-      alert('Error deleting player');
+      showAlert('Error deleting player', 'error');
     }
   };
 
@@ -201,11 +202,11 @@ export default function MainScreen({ onLogout }) {
 
         fetchSelectedPlayerData(selectedPlayer);
       } else {
-        alert('No se pudo dormir al jugador');
+        showAlert('Failed to put player to sleep', 'warning');
       }
     } catch (error) {
       console.error('Error al dormir al jugador:', error);
-      alert('Error al dormir al jugador');
+      showAlert('Error putting player to sleep', 'error');
     }
   };
 
@@ -223,11 +224,11 @@ export default function MainScreen({ onLogout }) {
       if (response.ok) {
         fetchSelectedPlayerData(selectedPlayer); // Recarga datos actualizados
       } else {
-        alert('No se pudo entrenar al jugador');
+       showAlert('Failed to train player', 'warning');
       }
     } catch (error) {
       console.error('Error al entrenar al jugador:', error);
-      alert('Error al entrenar al jugador');
+      showAlert('Error training player', 'error');
     }
   };
 
@@ -248,16 +249,28 @@ export default function MainScreen({ onLogout }) {
           fetchSelectedPlayerData(selectedPlayer);
           setShowTeamSelector(false);
         } else {
-          alert("Failed to update team");
+          showAlert("Failed to update team", "error");
         }
       } catch (error) {
         console.error("Error updating team:", error);
-        alert("Error updating team");
+        showAlert("Error updating team", "error");
       }
+    };
+
+    const showAlert = (message, type = 'info') => {
+      setCustomAlert({ message, type, visible: true });
+      setTimeout(() => {
+        setCustomAlert({ message: '', type: '', visible: false });
+      }, 3000); // Oculta el mensaje tras 3 segundos
     };
 
   return (
     <div className="stadium-bg">
+    {customAlert.visible && (
+      <div className={`custom-alert ${customAlert.type}`}>
+        {customAlert.message}
+      </div>
+    )}
       <div className="header">
         <span className="player-name">{playerName}</span>
         <button className="logout-button" onClick={handleLogout}>Log out</button>
